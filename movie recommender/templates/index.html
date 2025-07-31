@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Movie Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🎬 Smart Movie Finder</h1>
+                <p class="tagline">Discover your next favorite movie with AI-powered recommendations</p>
+            </div>
+            <div class="hero-animation">
+                <div class="floating-movie"></div>
+                <div class="floating-movie"></div>
+                <div class="floating-movie"></div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="search-section">
+                <h2 class="section-title">Find Movies You'll Love</h2>
+                <form method="POST" action="/recommend" class="search-form">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            name="movie_title" 
+                            id="movieInput"
+                            placeholder="Enter a movie you enjoyed..."
+                            class="search-input"
+                            autocomplete="off"
+                            required
+                        >
+                        <div class="search-suggestions" id="suggestions"></div>
+                    </div>
+                    <button type="submit" class="search-btn">
+                        <span class="btn-text">Get Recommendations</span>
+                        <span class="btn-icon">✨</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="features-section">
+                <h3 class="features-title">How It Works</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h4>Search</h4>
+                        <p>Enter a movie you enjoyed watching</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h4>AI Analysis</h4>
+                        <p>Our AI analyzes genres, themes, and similarities</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h4>Discover</h4>
+                        <p>Get personalized movie recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label">Movies</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">AI</div>
+                        <div class="stat-label">Powered</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">Instant</div>
+                        <div class="stat-label">Results</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Smart Movie Finder. @All Rights Reserved For Muthukumar</p>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-complete functionality
+        const movieInput = document.getElementById('movieInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+        let debounceTimer;
+
+        movieInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/search?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displaySuggestions(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        suggestionsDiv.style.display = 'none';
+                    });
+            }, 300);
+        });
+
+        function displaySuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            suggestionsDiv.innerHTML = suggestions.map(movie => 
+                `<div class="suggestion-item" onclick="selectSuggestion('${movie.replace(/'/g, "\\'")}')">${movie}</div>`
+            ).join('');
+            
+            suggestionsDiv.style.display = 'block';
+        }
+
+        function selectSuggestion(movie) {
+            movieInput.value = movie;
+            suggestionsDiv.style.display = 'none';
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.input-group')) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        // Add loading animation to button
+        document.querySelector('.search-form').addEventListener('submit', function() {
+            const btn = document.querySelector('.search-btn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span class="btn-text">Finding Movies...</span><span class="btn-icon">⏳</span>';
+        });
+    </script>
+</body>
+</html>

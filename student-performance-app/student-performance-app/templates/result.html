@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🎯 Academic Performance Prediction Result</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1b1a17;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #f9d342;
+        }
+
+        .container {
+            background-color: #2c2b26;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 12px rgba(249, 211, 66, 0.4);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #f9d342;
+            text-shadow: 0 0 4px rgba(249, 211, 66, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            font-size: 22px;
+            color: #2c2b26;
+            font-weight: bold;
+            background-color: #f9d342;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .try-again {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f9d342;
+            color: #2c2b26;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(249, 211, 66, 0.3);
+            transition: background-color 0.3s ease;
+        }
+
+        .try-again:hover {
+            background-color: #eac72f;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #c8c8c8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Prediction Result</h1>
+        <div class="result-box">
+            🎓 Predicted Academic Performance: {{ prediction }}
+        </div>
+        <a href="/" class="try-again">🔁 Try Another Prediction</a>
+        <p class="footer-note">💡 Note: This prediction is based on study hours, attendance, and previous grade.</p>
+    </div>
+</body>
+</html>

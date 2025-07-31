@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Taxi Fare Result</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://images.wallpapersden.com/image/download/new-york-night-taxi_Zmxram6UmZqaraWkpJRnamtlrWZrZWU.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .result-box {
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 350px;
+    }
+
+    .result-box h2 {
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .result-box p {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #f1f1f1;
+    }
+
+    .result-box a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ffcc00;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .result-box a:hover {
+      background-color: #e6b800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="result-box">
+    <h2>Fare Prediction Result</h2>
+    <p><strong>Population:</strong> {{ population }}</p>
+    <p><strong>Monthly Income:</strong> {{ income }}</p>
+    <p><strong>Parking Cost:</strong> {{ parking }}</p>
+    <p><strong>Weekly Riders:</strong> {{ riders }}</p>
+    <p><strong>Predicted Fare:</strong> ₹{{ prediction }}</p>
+    <a href="/">← Predict Again</a>
+  </div>
+
+</body>
+</html>

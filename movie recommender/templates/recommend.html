@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations - Smart Movie Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header-small">
+            <div class="header-content">
+                <h1 class="logo"><a href="/">🎬 Smart Movie Finder</a></h1>
+                <a href="/" class="back-btn">← Back to Search</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            {% if error %}
+                <div class="error-section">
+                    <div class="error-card">
+                        <div class="error-icon">😔</div>
+                        <h2>Oops! Movie Not Found</h2>
+                        <p>{{ error }}</p>
+                        <a href="/" class="retry-btn">Try Another Movie</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="results-header">
+                    <h2 class="results-title">Movies Similar to "{{ movie_title }}"</h2>
+                    <p class="results-subtitle">Here are some movies you might enjoy based on your selection</p>
+                </div>
+
+                <div class="recommendations-grid">
+                    {% for movie in recommendations %}
+                        <div class="movie-card" data-index="{{ loop.index }}">
+                            <div class="movie-card-header">
+                                <h3 class="movie-title">{{ movie.title }}</h3>
+                                <div class="movie-meta">
+                                    <span class="rating">⭐ {{ movie.vote_average }}</span>
+                                    <span class="year">{{ movie.release_date[:4] if movie.release_date != 'N/A' else 'N/A' }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="movie-genres">
+                                {% if movie.genres %}
+                                    {% for genre in movie.genres.split(', ') %}
+                                        <span class="genre-tag">{{ genre }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            
+                            <p class="movie-overview">{{ movie.overview }}</p>
+                            
+                            <div class="movie-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Popularity</span>
+                                    <span class="stat-value">{{ movie.popularity }}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Release</span>
+                                    <span class="stat-value">{{ movie.release_date if movie.release_date != 'N/A' else 'Unknown' }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="movie-actions">
+                                <button class="action-btn" onclick="searchMovie('{{ movie.title.replace("'", "\\'") }}')">
+                                    Find Similar
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="search-again-section">
+                    <h3>Want More Recommendations?</h3>
+                    <form method="POST" action="/recommend" class="quick-search-form">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                name="movie_title" 
+                                id="quickMovieInput"
+                                placeholder="Try another movie..."
+                                class="search-input"
+                                autocomplete="off"
+                            >
+                            <div class="search-suggestions" id="quickSuggestions"></div>
+                        </div>
+                        <button type="submit" class="search-btn">
+                            <span class="btn-text">Get More</span>
+                            <span class="btn-icon">🔍</span>
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Smart Movie Finder. Discover cinema with intelligence.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-complete for quick search
+        const quickMovieInput = document.getElementById('quickMovieInput');
+        const quickSuggestionsDiv = document.getElementById('quickSuggestions');
+        let quickDebounceTimer;
+
+        if (quickMovieInput) {
+            quickMovieInput.addEventListener('input', function() {
+                clearTimeout(quickDebounceTimer);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    quickSuggestionsDiv.style.display = 'none';
+                    return;
+                }
+
+                quickDebounceTimer = setTimeout(() => {
+                    fetch(`/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            displayQuickSuggestions(data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            quickSuggestionsDiv.style.display = 'none';
+                        });
+                }, 300);
+            });
+        }
+
+        function displayQuickSuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                quickSuggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            quickSuggestionsDiv.innerHTML = suggestions.map(movie => 
+                `<div class="suggestion-item" onclick="selectQuickSuggestion('${movie.replace(/'/g, "\\'")}')">${movie}</div>`
+            ).join('');
+            
+            quickSuggestionsDiv.style.display = 'block';
+        }
+
+        function selectQuickSuggestion(movie) {
+            quickMovieInput.value = movie;
+            quickSuggestionsDiv.style.display = 'none';
+        }
+
+        function searchMovie(title) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/recommend';
+            
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'movie_title';
+            input.value = title;
+            
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.input-group')) {
+                if (quickSuggestionsDiv) {
+                    quickSuggestionsDiv.style.display = 'none';
+                }
+            }
+        });
+
+        // Animate cards on load
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.movie-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('animate-in');
+                }, index * 100);
+            });
+        });
+
+        // Add loading animation to buttons
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                const btn = this.querySelector('.search-btn');
+                if (btn) {
+                    btn.classList.add('loading');
+                    btn.innerHTML = '<span class="btn-text">Searching...</span><span class="btn-icon">⏳</span>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
